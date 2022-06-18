@@ -1,21 +1,22 @@
-const db = require('./db')
 const express = require('express')
 const app = express()
+const db = require('./db')
 
-app.use('/', express.static('public'))
+app.use(express.static('static'))
+app.use(express.static('dist'))
 app.use(express.json())
 
-app.post('/api/v2/list', async (req,res) => {
-    res.send(await db.getList());
+app.post('/api/list', async (req,res) => {
+    res.send(await db.getList())
 })
 
-app.post('/api/v2/add', async (req,res) => {
+app.post('/api/add', async (req,res) => {
     await db.add(req.body.text)
     res.end()
 })
 
-app.post('/api/v2/remove', async (req,res) => {
-    await db.remove(req.body.id);
+app.post('/api/remove', async (req,res) => {
+    await db.remove(req.body.id)
     res.end()
 })
 

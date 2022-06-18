@@ -4,7 +4,11 @@
   "description": "",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "build": "webpack --mode=production",
+    "build:dev": "webpack --watch --mode=development",
+    "start-server:dev": "cross-env PGUSER=postgres PGDATABASE=postgres nodemon --watch server server/index.js",
+    "start:dev": "concurrently npm:start-server:dev npm:build:dev"
   },
   "keywords": [],
   "author": "",
@@ -12,5 +16,14 @@
   "dependencies": {
     "express": "^4.18.1",
     "pg": "^8.7.3"
+  },
+  "devDependencies": {
+    "concurrently": "^7.2.2",
+    "cross-env": "^7.0.3",
+    "elm": "^0.19.1-5",
+    "elm-webpack-loader": "^8.0.0",
+    "nodemon": "^2.0.16",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0"
   }
 }
