@@ -15,7 +15,7 @@ module.exports = (env, argv) => ({
   module: {
     rules: [
       {
-        test:    /\.elm$/,
+        test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
         use: {
             loader: 'elm-webpack-loader',
@@ -25,6 +25,13 @@ module.exports = (env, argv) => ({
             }
         }
       },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      }
     ]
   }
 })
