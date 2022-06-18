@@ -2,9 +2,11 @@ module Main exposing (main)
 
 import Api exposing (addEntry, fetchList, removeEntry)
 import Browser
+import Browser.Dom as Dom
 import Html exposing (..)
-import Html.Attributes exposing (class, type_)
+import Html.Attributes exposing (class, id, type_)
 import Html.Events exposing (onClick, onInput)
+import Task
 
 
 main : Program Flags Model Msg
@@ -58,6 +60,12 @@ type Msg
     | EntryRemovalRequested Int
     | NewListRequested
     | TextChanged String
+    | NoOp
+
+
+focus : String -> Cmd Msg
+focus id =
+    Task.attempt (\_ -> NoOp) (Dom.focus id)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -67,7 +75,7 @@ update msg model =
             ( Error, Cmd.none )
 
         ListReceived ls ->
-            ( Idle ls "", Cmd.none )
+            ( Idle ls "", focus "new-entry-textfield" )
 
         EntryAdditionRequested ->
             case model of
@@ -90,6 +98,9 @@ update msg model =
 
                 _ ->
                     ( Error, Cmd.none )
+
+        NoOp ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -130,7 +141,7 @@ viewIdle ls str =
 
 viewTextBox : String -> List (Html Msg)
 viewTextBox str =
-    [ input [ type_ "text", onInput TextChanged ] [ text str ]
+    [ input [ type_ "text", onInput TextChanged, id "new-entry-textfield" ] [ text str ]
     , button [ onClick EntryAdditionRequested ] [ text "Hinzufügen" ]
     ]
 
