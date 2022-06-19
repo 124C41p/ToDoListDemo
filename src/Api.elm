@@ -14,21 +14,34 @@ todoListDecoder =
             (Decode.field "text" Decode.string)
 
 
-idEncoder : Int -> Encode.Value
-idEncoder id =
-    Encode.object [ ( "id", Encode.int id ) ]
+idEncoder : Int -> Int -> Encode.Value
+idEncoder id lag =
+    Encode.object
+        [ ( "id", Encode.int id )
+        , ( "lag", Encode.int lag )
+        ]
 
 
-textEncoder : String -> Encode.Value
-textEncoder str =
-    Encode.object [ ( "text", Encode.string str ) ]
+textEncoder : String -> Int -> Encode.Value
+textEncoder str lag =
+    Encode.object
+        [ ( "text", Encode.string str )
+        , ( "lag", Encode.int lag )
+        ]
 
 
-fetchList : msg -> (List ( Int, String ) -> msg) -> Cmd msg
-fetchList errorMsg processor =
+todolistEncoder : Int -> Encode.Value
+todolistEncoder lag =
+    Encode.object
+        [ ( "lag", Encode.int lag )
+        ]
+
+
+fetchList : Int -> msg -> (List ( Int, String ) -> msg) -> Cmd msg
+fetchList lag errorMsg processor =
     Http.post
         { url = "/api/list"
-        , body = Http.emptyBody
+        , body = Http.jsonBody (todolistEncoder lag)
         , expect =
             Http.expectJson
                 (Result.map processor >> Result.withDefault errorMsg)
@@ -36,22 +49,22 @@ fetchList errorMsg processor =
         }
 
 
-removeEntry : Int -> msg -> msg -> Cmd msg
-removeEntry id errorMsg doneMsg =
+removeEntry : Int -> Int -> msg -> msg -> Cmd msg
+removeEntry id lag errorMsg doneMsg =
     Http.post
         { url = "/api/remove"
-        , body = Http.jsonBody (idEncoder id)
+        , body = Http.jsonBody (idEncoder id lag)
         , expect =
             Http.expectWhatever
                 (Result.map (always doneMsg) >> Result.withDefault errorMsg)
         }
 
 
-addEntry : String -> msg -> msg -> Cmd msg
-addEntry str errorMsg doneMsg =
+addEntry : String -> Int -> msg -> msg -> Cmd msg
+addEntry str lag errorMsg doneMsg =
     Http.post
         { url = "/api/add"
-        , body = Http.jsonBody (textEncoder str)
+        , body = Http.jsonBody (textEncoder str lag)
         , expect =
             Http.expectWhatever
                 (Result.map (always doneMsg) >> Result.withDefault errorMsg)
