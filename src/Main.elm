@@ -7,6 +7,8 @@ import Html exposing (..)
 import Html.Attributes exposing (class, id, type_)
 import Html.Events exposing (onClick, onInput)
 import Task
+import Html.Attributes exposing (for)
+import Html.Attributes exposing (placeholder)
 
 
 main : Program Flags Model Msg
@@ -136,26 +138,41 @@ viewLoading =
 
 viewIdle : TodoList -> String -> List (Html Msg)
 viewIdle ls str =
-    viewList ls ++ viewTextBox str
+    [ div [ class "container mt-3" ]
+        [ div [ class "card" ]
+            [ div [ class "card-header" ] [ text "TODOs" ]
+            , div [ class "card-body" ]
+                [ viewTodoList ls
+                , viewTextBox str
+                ]
+            ]
+        ]
+    ]
 
 
-viewTextBox : String -> List (Html Msg)
+viewTextBox : String -> Html Msg
 viewTextBox str =
-    [ input [ type_ "text", onInput TextChanged, id "new-entry-textfield" ] [ text str ]
-    , button [ onClick EntryAdditionRequested ] [ text "Hinzufügen" ]
-    ]
+    div [ class "input-group" ]
+        [ input [ type_ "text", class "form-control", onInput TextChanged, id "new-entry-textfield", placeholder "Neuer Eintrag" ] [ text str ]
+        , button [ class "btn btn-outline-secondary", onClick EntryAdditionRequested ] [ text "Hinzufügen" ]
+        ]
 
 
-viewList : TodoList -> List (Html Msg)
-viewList ls =
-    [ ul []
-        (List.map
-            (\entry ->
-                li []
-                    [ text entry.text
-                    , button [ onClick (EntryRemovalRequested entry.id) ] [ text "Entfernen" ]
-                    ]
+viewTodoList : TodoList -> Html Msg
+viewTodoList ls =
+    Html.table [ class "table", class "table-striped" ]
+        [ tbody []
+            (List.map2
+                (\entry index ->
+                    tr []
+                        [ td [] [ text <| String.fromInt index ]
+                        , td [] [ text entry.text ]
+                        , td []
+                            [ button [ class "btn", onClick (EntryRemovalRequested entry.id) ] [ text "❌" ]
+                            ]
+                        ]
+                )
+                ls
+                (List.range 1 (List.length ls))
             )
-            ls
-        )
-    ]
+        ]
