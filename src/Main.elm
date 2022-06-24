@@ -4,8 +4,8 @@ import Api exposing (addEntry, fetchList, removeEntry)
 import Browser
 import Browser.Dom as Dom
 import Html exposing (..)
-import Html.Attributes as Attribute exposing (class, for, height, id, placeholder, style, type_)
-import Html.Events exposing (onClick, onInput)
+import Html.Attributes as Attribute exposing (class, disabled, for, height, id, placeholder, style, type_)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Task
 
 
@@ -133,20 +133,22 @@ view model =
 
 viewFormData : Model -> List (Html Msg)
 viewFormData model =
-    [ div [ class "container mt-3" ]
-        [ div [ class "card" ]
+    [ div [ class "container py-5 vh-100 d-flex flex-column" ]
+        [ div [ class "card flex-grow-1 overflow-hidden" ]
             [ div [ class "card-header" ] [ h1 [ class "text-center" ] [ text "TODOs" ] ]
-            , div [ class "card-body" ]
+            , div [ class "card-body text-bg-dark d-flex flex-column overflow-hidden gap-3" ]
                 (case model.formData of
                     Data data ->
-                        [ div [ class "overflow-auto", style "height" "600px" ] [ viewTodoList data.todoList ]
+                        [ div [ class "flex-grow-1 overflow-auto" ] [ viewTodoList data.todoList ]
                         , viewTextBox data.newEntry
                         , viewSlider model.artificialLag
                         ]
 
                     Loading ->
-                        [ div [ class "d-flex justify-content-center" ]
-                            [ div [ class "spinner-border" ] [] ]
+                        [ div [ class "flex-grow-1 d-flex flex-column justify-content-center" ]
+                            [ div [ class "d-flex justify-content-center" ]
+                                [ div [ class "spinner-border" ] [] ]
+                            ]
                         ]
                 )
             ]
@@ -156,9 +158,19 @@ viewFormData model =
 
 viewTextBox : String -> Html Msg
 viewTextBox str =
-    div [ class "input-group" ]
-        [ input [ type_ "text", class "form-control", onInput TextChanged, id "new-entry-textfield", placeholder "Neuer Eintrag" ] [ text str ]
-        , button [ class "btn btn-outline-secondary", onClick (EntryAdditionRequested str) ] [ text "Hinzufügen" ]
+    form
+        (if str == "" then
+            []
+
+         else
+            [ onSubmit (EntryAdditionRequested str) ]
+        )
+        [ div [ class "form-group" ]
+            [ div [ class "input-group" ]
+                [ input [ type_ "text", class "form-control", onInput TextChanged, id "new-entry-textfield", placeholder "Neuer Eintrag" ] [ text str ]
+                , button [ class "btn btn-primary", type_ "submit", disabled (str == "") ] [ text "Hinzufügen" ]
+                ]
+            ]
         ]
 
 
@@ -189,7 +201,7 @@ viewTodoList ls =
                     tr []
                         [ td [] [ text <| String.fromInt index ]
                         , td [] [ text entry.text ]
-                        , td []
+                        , td [ class "text-end" ]
                             [ button [ class "btn", onClick (EntryRemovalRequested entry.id) ] [ text "❌" ]
                             ]
                         ]
