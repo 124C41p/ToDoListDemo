@@ -4,7 +4,7 @@ import Api exposing (addEntry, fetchList, removeEntry)
 import Browser
 import Browser.Dom as Dom
 import Html exposing (..)
-import Html.Attributes as Attribute exposing (class, disabled, for, height, id, placeholder, style, type_)
+import Html.Attributes as Attribute exposing (class, disabled, for, id, placeholder, type_)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Task
 
@@ -41,17 +41,17 @@ type alias Model =
 
 type FormData
     = Loading
-    | Data LoadedData
+    | Available ActualFormData
 
 
-type alias LoadedData =
+type alias ActualFormData =
     { todoList : TodoList
     , newEntry : String
     }
 
 
-processTodoList : List ( Int, String ) -> Msg
-processTodoList =
+processTodoListRawData : List ( Int, String ) -> Msg
+processTodoListRawData =
     List.map (\( id, txt ) -> TodoEntry id txt) >> ListReceived
 
 
@@ -61,7 +61,7 @@ init _ =
     , fetchList
         0
         ErrorOccurred
-        processTodoList
+        processTodoListRawData
     )
 
 
@@ -87,18 +87,18 @@ updateNewEntry str formData =
         Loading ->
             Loading
 
-        Data data ->
-            Data { data | newEntry = str }
+        Available data ->
+            Available { data | newEntry = str }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ErrorOccurred ->
-            ( model, fetchList model.artificialLag ErrorOccurred processTodoList )
+            ( model, fetchList model.artificialLag ErrorOccurred processTodoListRawData )
 
         ListReceived ls ->
-            ( { model | formData = Data <| LoadedData ls "" }, focus "new-entry-textfield" )
+            ( { model | formData = Available <| ActualFormData ls "" }, focus "new-entry-textfield" )
 
         EntryAdditionRequested str ->
             ( { model | formData = Loading }, addEntry str model.artificialLag ErrorOccurred NewListRequested )
@@ -107,7 +107,7 @@ update msg model =
             ( { model | formData = Loading }, removeEntry id model.artificialLag ErrorOccurred NewListRequested )
 
         NewListRequested ->
-            ( { model | formData = Loading }, fetchList model.artificialLag ErrorOccurred processTodoList )
+            ( { model | formData = Loading }, fetchList model.artificialLag ErrorOccurred processTodoListRawData )
 
         TextChanged str ->
             ( { model | formData = updateNewEntry str model.formData }, Cmd.none )
@@ -136,9 +136,9 @@ viewFormData model =
     [ div [ class "container py-5 vh-100 d-flex flex-column" ]
         [ div [ class "card flex-grow-1 overflow-hidden" ]
             [ div [ class "card-header" ] [ h1 [ class "text-center" ] [ text "TODOs" ] ]
-            , div [ class "card-body text-bg-dark d-flex flex-column overflow-hidden gap-3" ]
+            , div [ class "card-body d-flex flex-column overflow-hidden gap-3" ]
                 (case model.formData of
-                    Data data ->
+                    Available data ->
                         [ div [ class "flex-grow-1 overflow-auto" ] [ viewTodoList data.todoList ]
                         , viewTextBox data.newEntry
                         , viewSlider model.artificialLag

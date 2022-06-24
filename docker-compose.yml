@@ -16,16 +16,5 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - todolist-data:/var/lib/postgresql/data
-  dbadmin:
-    image: dpage/pgadmin4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: a@b.de
-      PGADMIN_DEFAULT_PASSWORD: root
-    ports:
-      - "8081:80"
-    volumes:
-      - todolist-data:/var/lib/pgadmin
 volumes:
   todolist-data:
-  dbadmin-data:
