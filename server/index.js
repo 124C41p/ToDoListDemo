@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const db = require('./db')
-const { setTimeout } = require('timers/promises')
+const util = require('util')
 
 app.use(express.static('static'))
 app.use(express.static('dist'))
@@ -10,7 +10,7 @@ app.use(express.json())
 async function simulateLag(delay) {
     delay = Math.min(Math.max(delay ?? 0, 0), 3000)
     if (delay > 0)
-        await setTimeout(delay)
+        await util.promisify(setTimeout)(delay)
 }
 
 app.post('/api/list', async (req, res) => {
