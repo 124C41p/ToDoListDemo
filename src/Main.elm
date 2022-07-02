@@ -133,24 +133,26 @@ view model =
 
 viewFormData : Model -> List (Html Msg)
 viewFormData model =
-    [ div [ class "container py-5 vh-100 d-flex flex-column" ]
-        [ div [ class "card flex-grow-1 overflow-hidden" ]
-            [ div [ class "card-header" ] [ h1 [ class "text-center" ] [ text "TODOs" ] ]
-            , div [ class "card-body d-flex flex-column overflow-hidden gap-3" ]
-                (case model.formData of
-                    Available data ->
-                        [ div [ class "flex-grow-1 overflow-auto" ] [ viewTodoList data.todoList ]
-                        , viewTextBox data.newEntry
-                        , viewSlider model.artificialLag
-                        ]
-
-                    Loading ->
-                        [ div [ class "flex-grow-1 d-flex flex-column justify-content-center" ]
-                            [ div [ class "d-flex justify-content-center" ]
-                                [ div [ class "spinner-border" ] [] ]
+    [ div [ class "position-fixed vh-100 vw-100 mh-100 mw-100 d-flex flex-column overflow-hidden" ]
+        [ div [ class "container py-5 flex-grow-1 d-flex flex-column overflow-hidden" ]
+            [ div [ class "card flex-grow-1 overflow-hidden" ]
+                [ div [ class "card-header" ] [ h1 [ class "text-center" ] [ text "TODOs" ] ]
+                , div [ class "card-body d-flex flex-column overflow-hidden gap-3" ]
+                    (case model.formData of
+                        Available data ->
+                            [ div [ class "flex-grow-1 overflow-auto" ] [ viewTodoList data.todoList ]
+                            , viewTextBox data.newEntry
+                            , viewSlider model.artificialLag
                             ]
-                        ]
-                )
+
+                        Loading ->
+                            [ div [ class "flex-grow-1 d-flex flex-column justify-content-center" ]
+                                [ div [ class "d-flex justify-content-center" ]
+                                    [ div [ class "spinner-border" ] [] ]
+                                ]
+                            ]
+                    )
+                ]
             ]
         ]
     ]
